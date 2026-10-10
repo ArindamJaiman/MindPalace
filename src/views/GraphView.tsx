@@ -136,8 +136,8 @@ export function GraphCanvas(props: Props) {
     linksRef.current = simLinks;
     simRef.current?.stop();
     const sim = forceSimulation<GNode, GLink>(simNodes)
-      .force('link', forceLink<GNode, GLink>(simLinks).id((d) => d.id).distance(compact ? 48 : 80).strength(0.6))
-      .force('charge', forceManyBody().strength(compact ? -140 : -260))
+      .force('link', forceLink<GNode, GLink>(simLinks).id((d) => d.id).distance(compact ? 78 : 80).strength(0.6))
+      .force('charge', forceManyBody().strength(compact ? -260 : -260))
       .force('center', forceCenter(0, 0))
       .force('x', forceX(0).strength(0.04))
       .force('y', forceY(0).strength(0.04))

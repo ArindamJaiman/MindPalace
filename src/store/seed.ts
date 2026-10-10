@@ -1,9 +1,7 @@
 import type { Note, Task } from './types';
 import { DAY, startOfDay } from '../lib/dates';
 
-const WELCOME = `# Welcome to your MindPalace ✨
-
-This is your second brain with a dopamine drip. Everything is stored **locally in your browser**.
+const WELCOME = `This is your second brain with a dopamine drip. Everything is stored **locally in your browser**.
 
 > [!tip] Start here
 > Open **Tasks** (\`Alt+1\`) and tick something off. Watch what happens.
@@ -26,9 +24,7 @@ Drag any \`.md\`, \`.txt\` or image file **anywhere on the window**. Markdown be
 #welcome #start
 `;
 
-const LINKING = `# How linking works
-
-Notes connect with **wikilinks**. Wrap a note's title in double brackets: [[Welcome to MindPalace]].
+const LINKING = `Notes connect with **wikilinks**. Wrap a note's title in double brackets: [[Welcome to MindPalace]].
 
 - Link with a different label: [[Shortcuts|my cheat sheet]]
 - Link to a note that doesn't exist yet: [[Someday ideas]]. Click it to create it.
@@ -50,9 +46,7 @@ Write #tags anywhere. Click one to search for everything with that tag.
 #guide
 `;
 
-const SHORTCUTS = `# Shortcuts
-
-| Keys | What it does |
+const SHORTCUTS = `| Keys | What it does |
 | --- | --- |
 | \`Ctrl+K\` | Command palette & quick switcher |
 | \`Alt+1\` … \`Alt+6\` | Tasks, Notes, Graph, Orbit, Fidget Lab, Settings |
@@ -67,9 +61,7 @@ Back to [[Welcome to MindPalace]].
 #guide
 `;
 
-const IDEAS = `# Someday ideas
-
-A parking lot for thoughts that aren't tasks yet.
+const IDEAS = `A parking lot for thoughts that aren't tasks yet.
 
 - Build a reading tracker that links to [[How linking works]]
 - Learn to juggle (the Fidget Lab counts as practice)
@@ -81,7 +73,13 @@ A parking lot for thoughts that aren't tasks yet.
 #ideas
 `;
 
-export function seedNotes(now = Date.now()): Record<string, Note> {
+/**
+ * Seed content is stamped with a fixed, old timestamp so that on a fresh device any real
+ * edit synced from the cloud is always newer and wins.
+ */
+export const SEED_TIME = Date.UTC(2026, 0, 1);
+
+export function seedNotes(now = SEED_TIME): Record<string, Note> {
   const list: Note[] = [
     { id: 'welcome', title: 'Welcome to MindPalace', content: WELCOME, folder: '', createdAt: now, updatedAt: now },
     { id: 'linking', title: 'How linking works', content: LINKING, folder: 'Guides', createdAt: now - 1000, updatedAt: now - 1000 },
@@ -91,9 +89,9 @@ export function seedNotes(now = Date.now()): Record<string, Note> {
   return Object.fromEntries(list.map((n) => [n.id, n]));
 }
 
-export function seedTasks(now = Date.now()): Task[] {
-  const today = startOfDay(now);
-  const base = { details: '', done: false, createdAt: now } as const;
+export function seedTasks(): Task[] {
+  const today = startOfDay();
+  const base = { details: '', done: false, createdAt: SEED_TIME, updatedAt: SEED_TIME } as const;
   return [
     { ...base, id: 't1', title: 'Tick this box and feel the dopamine', priority: 3, tags: ['start'], due: today, dueHasTime: false },
     { ...base, id: 't2', title: 'Pop every bubble in the Fidget Lab', priority: 1, tags: ['fun'], due: today, dueHasTime: false },

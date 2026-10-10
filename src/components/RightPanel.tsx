@@ -24,7 +24,12 @@ function Section({ icon, title, children, count }: { icon: React.ReactNode; titl
   );
 }
 
-const plainLinks = (s: string) => s.replace(/!?\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]+))?\]\]/g, (_m, a, b) => b ?? a);
+const plainLinks = (s: string) =>
+  s
+    .replace(/!?\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]+))?\]\]/g, (_m, a, b) => b ?? a)
+    .replace(/(\*\*|__|==|`)/g, '')
+    .replace(/^\s*(?:[-*+]|\d+\.)\s+(?:\[[ xX]\]\s+)?/, '')
+    .replace(/^#+\s+/, '');
 
 function NoteContext() {
   const note = useStore(selectActiveNote);

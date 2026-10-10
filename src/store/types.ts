@@ -24,6 +24,7 @@ export interface Task {
   dueHasTime?: boolean;
   remindAt?: number;
   reminded?: boolean;
+  updatedAt?: number;
 }
 
 export interface Completion {
@@ -33,6 +34,16 @@ export interface Completion {
   tags: string[];
   priority: Priority;
   xp: number;
+}
+
+/** Stable id for a completion row (a task can be completed, undone and completed again). */
+export const completionKey = (c: Pick<Completion, 'taskId' | 'at'>) => `${c.taskId}@${c.at}`;
+
+/** When something was deleted locally, so the deletion can be synced. */
+export interface Tombstones {
+  notes: Record<string, number>;
+  tasks: Record<string, number>;
+  completions: Record<string, number>;
 }
 
 export interface AttachmentMeta {

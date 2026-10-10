@@ -9,6 +9,7 @@ import { downloadBlob, pickFiles } from '../lib/files';
 import { sfx } from '../lib/sound';
 import { fx } from '../lib/fx';
 import { AccountSection } from '../sync/AccountSection';
+import { syncNow } from '../sync/sync';
 
 const ACCENTS = ['#8b7bff', '#4fd1c5', '#ff7ab6', '#ffc857', '#5ee6a0', '#7cc4ff', '#ff8a5c'];
 const CURSORS: { id: CursorStyle; label: string; desc: string }[] = [
@@ -217,7 +218,7 @@ export function SettingsView() {
               <Upload size={14} /> Import
             </button>
           </Row>
-          <Row title="Reset everything" desc="Wipes local notes, tasks and progress on this device.">
+          <Row title="Reset this device" desc="Wipes local notes, tasks and progress here. If you're signed in, your cloud copy is pulled back down.">
             <button
               className={`btn danger${confirmReset ? ' armed' : ''}`}
               onClick={() => {
@@ -229,6 +230,8 @@ export function SettingsView() {
                 useStore.getState().resetAll();
                 setConfirmReset(false);
                 toast({ kind: 'info', title: 'Fresh start' });
+                // If signed in, pull the cloud copy back down onto this device.
+                void syncNow();
               }}
             >
               <RotateCcw size={14} /> {confirmReset ? 'Click again to confirm' : 'Reset'}

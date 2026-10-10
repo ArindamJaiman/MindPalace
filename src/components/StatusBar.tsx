@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlarmClock, Bell, BellRing, Flame, PanelRight, Trophy, Volume2, VolumeX, X } from 'lucide-react';
+import { AlarmClock, Bell, BellRing, Cloud, CloudOff, Flame, PanelRight, RefreshCw, Trophy, Volume2, VolumeX, X } from 'lucide-react';
 import { useStore, selectActiveNote } from '../store/store';
 import { useUi } from '../store/ui';
 import { useRoute } from '../hooks/useRoute';
@@ -8,6 +8,28 @@ import { wordCount } from '../lib/links';
 import { levelInfo, streak } from '../lib/xp';
 import { relativeTime } from '../lib/dates';
 import { sfx } from '../lib/sound';
+import { useSync } from '../sync/sync';
+import { navigate } from '../hooks/useRoute';
+
+function SyncChip() {
+  const { status, lastSyncedAt, error } = useSync();
+  if (status === 'off') return null;
+  const title =
+    status === 'signed-out'
+      ? 'Not syncing. Sign in from Settings'
+      : status === 'error'
+        ? `Sync error: ${error ?? 'unknown'}`
+        : status === 'offline'
+          ? 'Offline. Changes will sync when you reconnect'
+          : lastSyncedAt
+            ? `Synced ${relativeTime(lastSyncedAt)}`
+            : 'Syncing';
+  return (
+    <button className={`sb-btn sync-chip s-${status}`} title={title} onClick={() => navigate('settings')}>
+      {status === 'syncing' ? <RefreshCw size={13} className="spinning" /> : status === 'signed-out' || status === 'offline' ? <CloudOff size={14} /> : <Cloud size={14} />}
+    </button>
+  );
+}
 
 function BellPanel() {
   const notifications = useStore((s) => s.notifications);
@@ -87,6 +109,7 @@ export function StatusBar() {
             <span style={{ width: `${lvl.progress * 100}%` }} />
           </span>
         </span>
+        <SyncChip />
         <button
           className="sb-btn"
           title={sound ? 'Mute sounds' : 'Unmute sounds'}

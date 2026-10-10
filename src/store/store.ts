@@ -1,15 +1,17 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
-import type {
-  AppNotification,
-  AttachmentMeta,
-  Completion,
-  FidgetStats,
-  Note,
-  Priority,
-  Settings,
-  Task,
+import {
+  completionKey,
+  type AppNotification,
+  type AttachmentMeta,
+  type Completion,
+  type FidgetStats,
+  type Note,
+  type Priority,
+  type Settings,
+  type Task,
+  type Tombstones,
 } from './types';
 import { seedNotes, seedTasks } from './seed';
 import { levelInfo, xpForTask } from '../lib/xp';
@@ -91,6 +93,9 @@ interface Data {
   fidget: FidgetStats;
   openTabs: string[];
   activeNoteId: string | null;
+  tombstones: Tombstones;
+  /** Last local change to synced profile fields (name, accent, folders). */
+  profileUpdatedAt: number;
 }
 
 interface Actions {
@@ -165,8 +170,17 @@ function initialData(): Data {
     fidget: { ...DEFAULT_FIDGET },
     openTabs: ['welcome'],
     activeNoteId: 'welcome',
+    tombstones: { notes: {}, tasks: {}, completions: {} },
+    profileUpdatedAt: 0,
   };
 }
+
+const withoutKey = <T,>(rec: Record<string, T>, key: string): Record<string, T> => {
+  if (!(key in rec)) return rec;
+  const next = { ...rec };
+  delete next[key];
+  return next;
+};
 
 export const useStore = create<StoreState>()(
   persist(
@@ -191,6 +205,7 @@ export const useStore = create<StoreState>()(
           notes: { ...st.notes, [note.id]: note },
           folders: folder ? withParents(st.folders, folder) : st.folders,
           expandedFolders: folder ? withParents(st.expandedFolders, folder) : st.expandedFolders,
+          ...(folder && !st.folders.includes(folder) ? { profileUpdatedAt: now } : {}),
           ...(open
             ? { openTabs: st.openTabs.includes(note.id) ? st.openTabs : [...st.openTabs, note.id], activeNoteId: note.id }
             : {}),
@@ -205,6 +220,7 @@ export const useStore = create<StoreState>()(
           return {
             notes: { ...st.notes, [id]: { ...n, ...patch, updatedAt: Date.now() } },
             folders: patch.folder ? withParents(st.folders, patch.folder) : st.folders,
+            ...(patch.folder && !st.folders.includes(patch.folder) ? { profileUpdatedAt: Date.now() } : {}),
           };
         });
       },
@@ -228,7 +244,7 @@ export const useStore = create<StoreState>()(
         }
         const tasks = st.tasks.map((task) => {
           const title2 = renameLinks(task.title, old, t);
-          return title2 === task.title ? task : { ...task, title: title2 };
+          return title2 === task.title ? task : { ...task, title: title2, updatedAt: Date.now() };
         });
         set({ notes, tasks });
         return true;
@@ -244,13 +260,14 @@ export const useStore = create<StoreState>()(
         const idx = st.openTabs.indexOf(id);
         const activeNoteId =
           st.activeNoteId === id ? (openTabs[Math.min(idx, openTabs.length - 1)] ?? null) : st.activeNoteId;
-        set({ notes, openTabs, activeNoteId });
+        set({ notes, openTabs, activeNoteId, tombstones: { ...st.tombstones, notes: { ...st.tombstones.notes, [id]: Date.now() } } });
         return n;
       },
 
       restoreNote(note) {
         set((st) => ({
-          notes: { ...st.notes, [note.id]: note },
+          notes: { ...st.notes, [note.id]: { ...note, updatedAt: Date.now() } },
+          tombstones: { ...st.tombstones, notes: withoutKey(st.tombstones.notes, note.id) },
           folders: note.folder ? withParents(st.folders, note.folder) : st.folders,
           openTabs: [...st.openTabs, note.id],
           activeNoteId: note.id,
@@ -285,14 +302,18 @@ export const useStore = create<StoreState>()(
           get().openNote(existing.id);
           return existing.id;
         }
-        return get().createNote({ title, folder, content: `# ${title}\n\n` }).id;
+        return get().createNote({ title, folder }).id;
       },
 
       /* ----- folders ----- */
       createFolder(path) {
         const p = path.replace(/^\/+|\/+$/g, '').trim();
         if (!p) return;
-        set((st) => ({ folders: withParents(st.folders, p), expandedFolders: withParents(st.expandedFolders, p) }));
+        set((st) => ({
+          folders: withParents(st.folders, p),
+          expandedFolders: withParents(st.expandedFolders, p),
+          profileUpdatedAt: Date.now(),
+        }));
       },
 
       deleteFolder(path) {
@@ -301,13 +322,15 @@ export const useStore = create<StoreState>()(
           const inside = (f: string) => f === path || f.startsWith(path + '/');
           const notes: Record<string, Note> = {};
           for (const [k, n] of Object.entries(st.notes)) {
-            notes[k] = inside(n.folder) ? { ...n, folder: parent + n.folder.slice(path.length).replace(/^\//, parent ? '/' : '') } : n;
+            notes[k] = inside(n.folder)
+              ? { ...n, folder: parent + n.folder.slice(path.length).replace(/^\//, parent ? '/' : ''), updatedAt: Date.now() }
+              : n;
           }
           const folders = st.folders
             .filter((f) => f !== path)
             .map((f) => (inside(f) ? parent + f.slice(path.length).replace(/^\//, parent ? '/' : '') : f))
             .filter(Boolean);
-          return { notes, folders: [...new Set(folders)].sort((a, b) => a.localeCompare(b)) };
+          return { notes, folders: [...new Set(folders)].sort((a, b) => a.localeCompare(b)), profileUpdatedAt: Date.now() };
         });
       },
 
@@ -331,6 +354,7 @@ export const useStore = create<StoreState>()(
           priority: 0,
           tags: [],
           createdAt: Date.now(),
+          updatedAt: Date.now(),
           ...t,
         };
         if (task.due && task.dueHasTime && task.remindAt === undefined && task.due > Date.now()) task.remindAt = task.due;
@@ -342,7 +366,7 @@ export const useStore = create<StoreState>()(
         set((st) => ({
           tasks: st.tasks.map((t) => {
             if (t.id !== id) return t;
-            const next = { ...t, ...patch };
+            const next = { ...t, ...patch, updatedAt: Date.now() };
             if ('remindAt' in patch) next.reminded = false;
             return next;
           }),
@@ -360,7 +384,7 @@ export const useStore = create<StoreState>()(
           const completion: Completion = { taskId: id, title: task.title, at: now, tags: task.tags, priority: task.priority, xp };
           const total = st.xp + xp;
           set({
-            tasks: st.tasks.map((t) => (t.id === id ? { ...t, done: true, completedAt: now } : t)),
+            tasks: st.tasks.map((t) => (t.id === id ? { ...t, done: true, completedAt: now, updatedAt: now } : t)),
             completions: [...st.completions, completion],
             xp: total,
           });
@@ -375,22 +399,33 @@ export const useStore = create<StoreState>()(
           }
         }
         const lost = idx >= 0 ? st.completions[idx].xp : 0;
+        const now = Date.now();
         set({
-          tasks: st.tasks.map((t) => (t.id === id ? { ...t, done: false, completedAt: undefined } : t)),
+          tasks: st.tasks.map((t) => (t.id === id ? { ...t, done: false, completedAt: undefined, updatedAt: now } : t)),
           completions: idx >= 0 ? st.completions.filter((_, i) => i !== idx) : st.completions,
           xp: Math.max(0, st.xp - lost),
+          tombstones:
+            idx >= 0
+              ? { ...st.tombstones, completions: { ...st.tombstones.completions, [completionKey(st.completions[idx])]: now } }
+              : st.tombstones,
         });
         return { completed: false, xp: -lost, leveledUp: false, level: levelInfo(Math.max(0, st.xp - lost)).level };
       },
 
       deleteTask(id) {
         const task = get().tasks.find((t) => t.id === id);
-        set((st) => ({ tasks: st.tasks.filter((t) => t.id !== id) }));
+        set((st) => ({
+          tasks: st.tasks.filter((t) => t.id !== id),
+          tombstones: { ...st.tombstones, tasks: { ...st.tombstones.tasks, [id]: Date.now() } },
+        }));
         return task;
       },
 
       restoreTask(task) {
-        set((st) => ({ tasks: [task, ...st.tasks.filter((t) => t.id !== task.id)] }));
+        set((st) => ({
+          tasks: [{ ...task, updatedAt: Date.now() }, ...st.tasks.filter((t) => t.id !== task.id)],
+          tombstones: { ...st.tombstones, tasks: withoutKey(st.tombstones.tasks, task.id) },
+        }));
       },
 
       /* ----- attachments ----- */
@@ -420,7 +455,10 @@ export const useStore = create<StoreState>()(
 
       /* ----- settings & fun ----- */
       setSettings(patch) {
-        set((st) => ({ settings: { ...st.settings, ...patch } }));
+        set((st) => ({
+          settings: { ...st.settings, ...patch },
+          ...('name' in patch || 'accent' in patch ? { profileUpdatedAt: Date.now() } : {}),
+        }));
       },
       bumpFidget(key, value) {
         set((st) => ({
@@ -466,6 +504,7 @@ export const useStore = create<StoreState>()(
           ...p,
           settings: { ...current.settings, ...(p.settings ?? {}) },
           fidget: { ...current.fidget, ...(p.fidget ?? {}) },
+          tombstones: { ...current.tombstones, ...(p.tombstones ?? {}) },
         };
       },
       onRehydrateStorage: () => () => {

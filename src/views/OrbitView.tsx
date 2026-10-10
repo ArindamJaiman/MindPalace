@@ -261,8 +261,6 @@ function OrbitCanvas({ completions, progress, accent }: { completions: Completio
       ctx.textAlign = 'left';
       ctx.fillStyle = 'rgba(255,255,255,0.55)';
       ctx.fillText('today', cx + 4, cy - inner - 7);
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillText(`${RINGS} days ago`, cx + 4, cy - (inner + (RINGS - 1) * gap) - 7);
 
       // hover
       let found: { x: number; y: number; p: Planet } | null = null;
@@ -380,7 +378,7 @@ export function OrbitView() {
       <div className="orbit-stage">
         <div className="orbit-head">
           <h1>Orbit</h1>
-          <p>Every finished task becomes a planet. Rings are days (today is closest to the sun), and position is the time you finished it. The sun grows as you clear today.</p>
+          <p>Every finished task becomes a planet. Each ring is a day (today hugs the sun, the outer ring is two weeks ago) and the angle is the time you finished it, like a 24-hour clock. The sun grows as you clear today.</p>
         </div>
         <OrbitCanvas completions={completions} progress={progress.ratio} accent={accent} />
         {completions.length === 0 && (

@@ -51,7 +51,7 @@ export async function importDropped(files: File[], entries?: FileSystemEntry[]) 
       store.updateNote(active.id, { content: `${active.content.replace(/\s*$/, '')}\n\n${embeds}\n` });
     } else {
       const title = res.attachments.length === 1 ? res.attachments[0].name.replace(/\.[^.]+$/, '') : `Uploads ${new Date().toLocaleDateString()}`;
-      store.createNote({ title, folder: 'Imported', content: `# ${title}\n\n${embeds}\n` });
+      store.createNote({ title, folder: 'Imported', content: `${embeds}\n` });
     }
   }
   if (res.noteIds.length) store.openNote(res.noteIds[res.noteIds.length - 1]);

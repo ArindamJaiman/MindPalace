@@ -242,7 +242,8 @@ export function CommandPalette() {
                 }}
               />
               <kbd>
-                <Command size={11} />K
+                <Command size={11} />
+                Ctrl K
               </kbd>
             </div>
             <div className="pal-list" ref={listRef}>
@@ -252,7 +253,7 @@ export function CommandPalette() {
                 return (
                   <div key={it.id}>
                     {header && <div className="pal-group">{header}</div>}
-                    <button className={`pal-item${i === sel ? ' selected' : ''}`} onMouseEnter={() => setSel(i)} onClick={() => it.run()}>
+                    <button className={`pal-item${i === sel ? ' selected' : ''}`} onMouseMove={() => i !== sel && setSel(i)} onClick={() => it.run()}>
                       {i === sel && <motion.span layoutId="pal-sel" className="pal-sel" transition={{ type: 'spring', stiffness: 700, damping: 40 }} />}
                       <span className="pal-icon">{it.icon}</span>
                       <span className="pal-label">{it.label}</span>

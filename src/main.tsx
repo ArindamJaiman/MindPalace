@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { registerServiceWorker } from './lib/notify';
+import { initSync } from './sync/sync';
 import './styles/base.css';
 import './styles/app.css';
 import './styles/views.css';
@@ -14,3 +15,4 @@ createRoot(document.getElementById('root')!).render(
 );
 
 void registerServiceWorker();
+void initSync();

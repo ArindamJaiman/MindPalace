@@ -7,6 +7,12 @@ import { del, get, set } from 'idb-keyval';
 const urlCache = new Map<string, string>();
 const key = (id: string) => `mp-att:${id}`;
 
+/** Set by the sync layer: downloads a blob this device doesn't have yet from cloud storage. */
+let remoteFetch: ((id: string) => Promise<Blob | undefined>) | null = null;
+export function setRemoteAttachmentFetcher(fn: typeof remoteFetch) {
+  remoteFetch = fn;
+}
+
 export async function saveAttachmentBlob(id: string, blob: Blob): Promise<string> {
   await set(key(id), blob);
   const url = URL.createObjectURL(blob);
@@ -17,7 +23,11 @@ export async function saveAttachmentBlob(id: string, blob: Blob): Promise<string
 export async function attachmentUrl(id: string): Promise<string | null> {
   const cached = urlCache.get(id);
   if (cached) return cached;
-  const blob = (await get(key(id))) as Blob | undefined;
+  let blob = (await get(key(id))) as Blob | undefined;
+  if (!blob && remoteFetch) {
+    blob = await remoteFetch(id).catch(() => undefined);
+    if (blob) await set(key(id), blob);
+  }
   if (!blob) return null;
   const url = URL.createObjectURL(blob);
   urlCache.set(id, url);
