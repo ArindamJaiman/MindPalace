@@ -39,12 +39,59 @@ export function sortTasks(a: Task, b: Task): number {
   return b.createdAt - a.createdAt;
 }
 
-let combo = 0;
-let lastCompleteAt = 0;
+/**
+ * How an edition celebrates. The bookkeeping (combos, XP, levels, "day cleared") is shared;
+ * each edition plugs in its own sound and visuals.
+ */
+export interface CompletionPresenter {
+  completed(e: { x: number; y: number; xp: number; combo: number; priority: number; anchor: Element | null }): void;
+  uncompleted(e: { x: number; y: number; xp: number }): void;
+  levelUp(e: { level: number; title: string }): void;
+  dayCleared(): void;
+}
+
 const COMBO_COLORS = ['#ffb020', '#ff6a1a', '#ff3b30', '#22d3ee', '#ffffff'];
 
+/** Forge: molten particles, chimes and toasts. */
+const forgePresenter: CompletionPresenter = {
+  completed({ x, y, xp, combo }) {
+    const accent = useStore.getState().settings.accent;
+    sfx.complete(combo);
+    fx.ripple(x, y, accent, 46);
+    fx.burst(x, y, { count: 22 + combo * 6, speed: 5 + combo * 0.7, colors: [accent, '#ffb020', '#ff3b30', '#ffffff', '#22d3ee'] });
+    fx.text(x + 34, y - 6, `+${xp} XP`, '#ffb020');
+    if (combo >= 2) {
+      const color = COMBO_COLORS[(combo - 2) % COMBO_COLORS.length];
+      setTimeout(() => fx.text(x + 120, y - 26, `x${combo} COMBO!`, color, 15 + Math.min(combo, 6) * 2), 120);
+    }
+  },
+  uncompleted({ x, y, xp }) {
+    sfx.uncomplete();
+    if (xp) fx.text(x + 30, y - 10, `${xp} XP`, '#7d858f', 14);
+  },
+  levelUp({ level, title }) {
+    sfx.levelUp();
+    fx.confetti(1.1);
+    toast({ kind: 'level', title: `Level ${level} unlocked!`, body: `You are now a ${title}.`, duration: 5000 });
+  },
+  dayCleared() {
+    fx.confetti(0.8);
+    sfx.chime();
+    toast({ kind: 'success', title: 'Today: cleared ✨', body: 'Every task due today is done. Go touch some grass.', duration: 5000 });
+  },
+};
+
+let presenter: CompletionPresenter = forgePresenter;
+
+export function setCompletionPresenter(p: CompletionPresenter) {
+  presenter = p;
+}
+
+let combo = 0;
+let lastCompleteAt = 0;
+
 /**
- * Toggle a task with all the juice: sound, particles, XP text, combos and level-ups.
+ * Toggle a task with all the juice: sound, visuals, XP, combos and level-ups.
  * Feedback fires instantly; with `commitDelay` the store update lands a beat later so the
  * row can finish its check animation before it moves to the done list.
  */
@@ -59,8 +106,7 @@ export function toggleTaskWithFx(id: string, anchor: Element | null, commitDelay
 
   if (task.done) {
     const res = store.toggleTask(id, 1);
-    sfx.uncomplete();
-    if (res?.xp) fx.text(x + 30, y - 10, `${res.xp} XP`, '#7d858f', 14);
+    presenter.uncompleted({ x, y, xp: res?.xp ?? 0 });
     return;
   }
 
@@ -68,17 +114,7 @@ export function toggleTaskWithFx(id: string, anchor: Element | null, commitDelay
   combo = now - lastCompleteAt < 90_000 ? combo + 1 : 1;
   lastCompleteAt = now;
   const myCombo = combo;
-  const gained = xpForTask(task.priority, myCombo);
-  const accent = store.settings.accent;
-
-  sfx.complete(myCombo);
-  fx.ripple(x, y, accent, 46);
-  fx.burst(x, y, { count: 22 + myCombo * 6, speed: 5 + myCombo * 0.7, colors: [accent, '#ffb020', '#ff3b30', '#ffffff', '#22d3ee'] });
-  fx.text(x + 34, y - 6, `+${gained} XP`, '#ffb020');
-  if (myCombo >= 2) {
-    const color = COMBO_COLORS[(myCombo - 2) % COMBO_COLORS.length];
-    setTimeout(() => fx.text(x + 120, y - 26, `x${myCombo} COMBO!`, color, 15 + Math.min(myCombo, 6) * 2), 120);
-  }
+  presenter.completed({ x, y, xp: xpForTask(task.priority, myCombo), combo: myCombo, priority: task.priority, anchor });
 
   const wasDueToday = isDueToday(task);
   const commit = () => {
@@ -86,22 +122,13 @@ export function toggleTaskWithFx(id: string, anchor: Element | null, commitDelay
     if (!res?.completed) return;
     if (res.leveledUp) {
       setTimeout(() => {
-        sfx.levelUp();
-        fx.confetti(1.1);
         const info = levelInfo(useStore.getState().xp);
-        toast({ kind: 'level', title: `Level ${info.level} unlocked!`, body: `You are now a ${info.title}.`, duration: 5000 });
+        presenter.levelUp({ level: info.level, title: info.title });
         useStore.getState().pushNotification({ kind: 'achievement', title: `Reached level ${info.level}`, body: info.title });
       }, 150);
     }
     if (wasDueToday && !useStore.getState().tasks.some((t) => !t.done && isDueToday(t))) {
-      setTimeout(
-        () => {
-          fx.confetti(0.8);
-          sfx.chime();
-          toast({ kind: 'success', title: 'Today: cleared ✨', body: 'Every task due today is done. Go touch some grass.', duration: 5000 });
-        },
-        res.leveledUp ? 1200 : 250,
-      );
+      setTimeout(() => presenter.dayCleared(), res.leveledUp ? 1200 : 250);
     }
   };
   if (commitDelay) setTimeout(commit, commitDelay);

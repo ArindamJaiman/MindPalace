@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Database, Download, MousePointer2, Palette, RotateCcw, Upload, User, Volume2 } from 'lucide-react';
+import { Bell, Database, DoorOpen, Download, MousePointer2, Palette, RotateCcw, Terminal, Upload, User, Volume2 } from 'lucide-react';
 import { useStore } from '../store/store';
 import { toast } from '../store/ui';
 import type { CursorStyle } from '../store/types';
@@ -10,6 +10,7 @@ import { sfx } from '../lib/sound';
 import { fx } from '../lib/fx';
 import { AccountSection } from '../sync/AccountSection';
 import { syncNow } from '../sync/sync';
+import { goToEdition } from '../editions';
 
 const ACCENTS = ['#ff6a1a', '#ff3b30', '#ffb020', '#22d3ee', '#3ddc84', '#8fa3b8', '#a855f7'];
 const CURSORS: { id: CursorStyle; label: string; desc: string }[] = [
@@ -72,6 +73,19 @@ export function SettingsView() {
         <h1>Settings</h1>
 
         <AccountSection />
+
+        <Card icon={<Terminal size={16} />} title="Edition" delay={0.02}>
+          <Row title="Terminal edition" desc="Same tasks and notes in a black-screen operator console. Switch back any time.">
+            <button className="btn primary" onClick={() => void goToEdition('terminal')}>
+              <Terminal size={14} /> Open Terminal
+            </button>
+          </Row>
+          <Row title="Gateway" desc="The chooser at the front door.">
+            <button className="btn" onClick={() => void goToEdition('gateway')}>
+              <DoorOpen size={14} /> Choose edition
+            </button>
+          </Row>
+        </Card>
 
         <Card icon={<User size={16} />} title="You" delay={0.03}>
           <Row title="Your name" desc="Used in greetings.">

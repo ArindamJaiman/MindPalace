@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
-import { Gamepad2, ListTodo, Network, NotebookPen, Orbit, PanelLeft, Search, Settings, Upload } from 'lucide-react';
+import { Gamepad2, ListTodo, Network, NotebookPen, Orbit, PanelLeft, Search, Settings, Terminal, Upload } from 'lucide-react';
 import { navigate, useRoute, type View } from '../hooks/useRoute';
 import { useStore } from '../store/store';
 import { useUi } from '../store/ui';
 import { sfx } from '../lib/sound';
 import { importDropped } from './DropZone';
 import { pickFiles } from '../lib/files';
+import { goToEdition } from '../editions';
 
 const ITEMS: { view: View; icon: React.ReactNode; label: string }[] = [
   { view: 'tasks', icon: <ListTodo size={20} />, label: 'Tasks' },
@@ -75,6 +76,20 @@ export function Ribbon() {
       ))}
 
       <div className="ribbon-spacer" />
+
+      <button
+        className="ribbon-btn edition-btn"
+        data-magnetic
+        title="Switch to the Terminal edition"
+        onClick={() => {
+          sfx.whoosh();
+          void goToEdition('terminal');
+        }}
+      >
+        <span className="ribbon-icon">
+          <Terminal size={19} />
+        </span>
+      </button>
 
       <button
         className="ribbon-btn"

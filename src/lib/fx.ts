@@ -3,7 +3,7 @@
  * The render loop only runs while something is alive, so it costs nothing when idle.
  */
 
-type Shape = 'circle' | 'square' | 'star' | 'streak';
+type Shape = 'circle' | 'square' | 'star' | 'streak' | 'glyph';
 
 interface Particle {
   x: number;
@@ -19,6 +19,7 @@ interface Particle {
   vr: number;
   gravity: number;
   drag: number;
+  ch?: string;
 }
 
 interface FloatText {
@@ -51,6 +52,20 @@ let last = 0;
 let reduced = false;
 
 export const PALETTE = ['#ff6a1a', '#ffb020', '#ff3b30', '#22d3ee', '#ffffff', '#ffd08a'];
+
+let palette = PALETTE;
+let defaultShapes: Shape[] = ['circle', 'square', 'star', 'streak'];
+let textFont = '"Chakra Petch", Inter, sans-serif';
+let glyphFont = '"JetBrains Mono", monospace';
+const GLYPHS = '01#$%&*+<>/\\|{}[]=?';
+
+/** Let an edition restyle the shared particle engine (colours, debris shapes, fonts). */
+export function configureFx(o: { palette?: string[]; shapes?: Shape[]; textFont?: string; glyphFont?: string }) {
+  if (o.palette) palette = o.palette;
+  if (o.shapes) defaultShapes = o.shapes;
+  if (o.textFont) textFont = o.textFont;
+  if (o.glyphFont) glyphFont = o.glyphFont;
+}
 
 export function setReducedMotion(v: boolean) {
   reduced = v;
@@ -93,7 +108,7 @@ export interface BurstOptions {
 
 function burst(x: number, y: number, o: BurstOptions = {}) {
   const count = Math.round((o.count ?? 24) * (reduced ? 0.25 : 1));
-  const colors = o.colors ?? PALETTE;
+  const colors = o.colors ?? palette;
   const speed = o.speed ?? 6;
   const spread = o.spread ?? Math.PI * 2;
   const angle = o.angle ?? -Math.PI / 2;
@@ -109,11 +124,12 @@ function burst(x: number, y: number, o: BurstOptions = {}) {
       max: rand(40, 75),
       size: (o.size ?? 4) * rand(0.6, 1.4),
       color: pick(colors),
-      shape: pick(o.shapes ?? ['circle', 'square', 'star', 'streak']),
+      shape: pick(o.shapes ?? defaultShapes),
       rot: Math.random() * Math.PI,
       vr: rand(-0.3, 0.3),
       gravity: o.gravity ?? 0.18,
       drag: 0.965,
+      ch: GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
     });
   }
   wake();
@@ -223,6 +239,13 @@ function loop(now: number) {
         ctx.rotate(Math.atan2(p.vy, p.vx) - p.rot);
         ctx.fillRect(-p.size * 1.5, -0.8, p.size * 3, 1.6);
         break;
+      case 'glyph':
+        ctx.rotate(-p.rot);
+        ctx.font = `700 ${Math.round(p.size * 3)}px ${glyphFont}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(p.ch ?? '0', 0, 0);
+        break;
     }
     ctx.restore();
   }
@@ -238,7 +261,7 @@ function loop(now: number) {
     }
     const pop = t < 0.15 ? 0.6 + (t / 0.15) * 0.55 : t < 0.25 ? 1.15 - ((t - 0.15) / 0.1) * 0.15 : 1;
     ctx.globalAlpha = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
-    ctx.font = `700 ${f.size * pop}px "Chakra Petch", Inter, sans-serif`;
+    ctx.font = `700 ${f.size * pop}px ${textFont}`;
     ctx.shadowColor = f.color;
     ctx.shadowBlur = 14;
     ctx.fillStyle = f.color;

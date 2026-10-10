@@ -1,0 +1,21 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from '../App';
+import { registerServiceWorker } from '../lib/notify';
+import { initSync } from '../sync/sync';
+import { rememberEdition } from '../editions';
+import '../styles/base.css';
+import '../styles/app.css';
+import '../styles/views.css';
+import '../styles/fidgets.css';
+
+rememberEdition('forge');
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+
+void registerServiceWorker();
+void initSync();

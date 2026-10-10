@@ -79,6 +79,9 @@ export interface Settings {
   noteMode: NoteMode;
   leftOpen: boolean;
   rightOpen: boolean;
+  /** Terminal edition: background code rain and cursor glyph trail. */
+  termRain: boolean;
+  termTrail: boolean;
 }
 
 export interface FidgetStats {

@@ -130,6 +130,35 @@ export const sfx = {
     tone(PENTA[4] * 2, 0.12, { type: 'triangle', gain: 0.12 });
     tone(PENTA[6] * 2, 0.16, { type: 'triangle', gain: 0.1, delay: 0.05 });
   },
+
+  /* ---- terminal edition: retro square-wave console sounds ---- */
+  /** Mechanical keyboard tick for typing in the shell. */
+  key() {
+    noise(0.012, { gain: 0.12, freq: 3500 + Math.random() * 1500, q: 4 });
+  },
+  /** "ACCESS GRANTED": two-tone square chirp that climbs with the combo, over a low thump. */
+  granted(combo = 1) {
+    const i = Math.min(combo - 1, PENTA.length - 3);
+    tone(110, 0.12, { type: 'sine', gain: 0.4, slideTo: 50 });
+    tone(PENTA[i] * 2, 0.07, { type: 'square', gain: 0.07 });
+    tone(PENTA[i + 2] * 2, 0.12, { type: 'square', gain: 0.07, delay: 0.07 });
+    noise(0.03, { gain: 0.1, freq: 5000, q: 2 });
+  },
+  denied() {
+    tone(160, 0.09, { type: 'square', gain: 0.09 });
+    tone(120, 0.16, { type: 'square', gain: 0.09, delay: 0.1 });
+  },
+  boot() {
+    [0, 2, 4].forEach((n, k) => tone(PENTA[n] * 2, 0.06, { type: 'square', gain: 0.05, delay: k * 0.06 }));
+  },
+  /** Modem-ish rank-up arpeggio. */
+  rankUp() {
+    [0, 4, 7, 9, 11].forEach((n, k) => tone(PENTA[Math.min(n, PENTA.length - 1)] * 2, 0.09, { type: 'square', gain: 0.06, delay: k * 0.07 }));
+    tone(65, 0.5, { type: 'sawtooth', gain: 0.12, slideTo: 40, delay: 0.35 });
+  },
+  glitch() {
+    noise(0.08, { gain: 0.18, freq: 1200 + Math.random() * 3000, q: 0.5 });
+  },
   delete() {
     tone(400, 0.12, { type: 'triangle', gain: 0.1, slideTo: 200 });
   },

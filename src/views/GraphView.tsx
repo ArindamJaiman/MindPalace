@@ -32,11 +32,47 @@ interface GNode extends SimulationNodeDatum {
 
 type GLink = SimulationLinkDatum<GNode> & { source: string | GNode; target: string | GNode };
 
+/** Colours and shapes for the graph; editions override the defaults. */
+export interface GraphPalette {
+  note?: string;
+  focus: string;
+  ghost: string;
+  task: string;
+  taskDone: string;
+  link: string;
+  linkDim: string;
+  spark: string;
+  label: string;
+  labelGhost: string;
+  ghostHole: string;
+  font: string;
+  square: boolean;
+  tagColor?: (tag: string) => string;
+}
+
+const DEFAULT_PALETTE: GraphPalette = {
+  focus: '#ffffff',
+  ghost: '#5a616b',
+  task: '#22d3ee',
+  taskDone: '#3ddc84',
+  link: 'rgba(190,200,215,0.12)',
+  linkDim: 'rgba(255,255,255,0.035)',
+  spark: '#ffffff',
+  label: '#d0d6dd',
+  labelGhost: '#7d858f',
+  ghostHole: 'rgba(6,7,8,0.95)',
+  font: 'Inter, sans-serif',
+  square: false,
+};
+
 interface Props {
   focusId?: string;
   compact?: boolean;
   showTags?: boolean;
   showTasks?: boolean;
+  palette?: Partial<GraphPalette>;
+  /** Override what clicking a node does (default: open it in the Forge views). */
+  onActivate?: (node: { kind: Kind; ref?: string; label: string }) => void;
 }
 
 const positions = new Map<string, { x: number; y: number }>();
@@ -112,7 +148,13 @@ function useGraphData({ focusId, showTags, showTasks }: Props) {
 export function GraphCanvas(props: Props) {
   const { focusId, compact } = props;
   const data = useGraphData(props);
-  const accent = useStore((s) => s.settings.accent);
+  const storeAccent = useStore((s) => s.settings.accent);
+  const pal: GraphPalette = { ...DEFAULT_PALETTE, ...props.palette };
+  const accent = pal.note ?? storeAccent;
+  const palRef = useRef(pal);
+  palRef.current = pal;
+  const activateRef = useRef(props.onActivate);
+  activateRef.current = props.onActivate;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const dataRef = useRef(data);
@@ -234,7 +276,7 @@ export function GraphCanvas(props: Props) {
       if (node) {
         node.fx = null;
         node.fy = null;
-        if (!moved) activate(node);
+        if (!moved) (activateRef.current ?? activate)(node);
       }
     };
     const onWheel = (e: WheelEvent) => {
@@ -265,6 +307,7 @@ export function GraphCanvas(props: Props) {
       if (sim && sim.alpha() > sim.alphaMin()) sim.tick();
       if (!w || !h) return;
       const v = view.current;
+      const P = palRef.current;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       ctx.translate(w / 2 + v.x, h / 2 + v.y);
@@ -288,7 +331,7 @@ export function GraphCanvas(props: Props) {
         const s = l.source as GNode;
         const t = l.target as GNode;
         const lit = hover && (s.id === hover.id || t.id === hover.id);
-        ctx.strokeStyle = lit ? accent : hover ? 'rgba(255,255,255,0.035)' : 'rgba(190,200,215,0.12)';
+        ctx.strokeStyle = lit ? accent : hover ? P.linkDim : P.link;
         ctx.globalAlpha = lit ? 0.9 : 1;
         ctx.beginPath();
         ctx.moveTo(s.x!, s.y!);
@@ -301,7 +344,7 @@ export function GraphCanvas(props: Props) {
             const fromHover = s.id === hover!.id;
             const px = fromHover ? s.x! + (t.x! - s.x!) * f : t.x! + (s.x! - t.x!) * f;
             const py = fromHover ? s.y! + (t.y! - s.y!) * f : t.y! + (s.y! - t.y!) * f;
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = P.spark;
             ctx.beginPath();
             ctx.arc(px, py, 1.8 / Math.sqrt(v.k), 0, Math.PI * 2);
             ctx.fill();
@@ -318,19 +361,21 @@ export function GraphCanvas(props: Props) {
         if (isFocus) r += Math.sin(time * 0.004) * 1.2 + 1;
         if (n === hover) r += 2;
         ctx.globalAlpha = lit ? 1 : 0.18;
-        const color = nodeColor(n, accent, isFocus);
+        const color = nodeColor(n, accent, isFocus, P);
         if ((hover && neighbors.has(n.id)) || isFocus) {
           ctx.shadowColor = color;
           ctx.shadowBlur = 16;
         }
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(n.x!, n.y!, r, 0, Math.PI * 2);
+        if (P.square) ctx.rect(n.x! - r, n.y! - r, r * 2, r * 2);
+        else ctx.arc(n.x!, n.y!, r, 0, Math.PI * 2);
         ctx.fill();
         if (n.kind === 'ghost') {
-          ctx.fillStyle = 'rgba(6,7,8,0.95)';
+          ctx.fillStyle = P.ghostHole;
           ctx.beginPath();
-          ctx.arc(n.x!, n.y!, r * 0.55, 0, Math.PI * 2);
+          if (P.square) ctx.rect(n.x! - r * 0.55, n.y! - r * 0.55, r * 1.1, r * 1.1);
+          else ctx.arc(n.x!, n.y!, r * 0.55, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.shadowBlur = 0;
@@ -341,12 +386,12 @@ export function GraphCanvas(props: Props) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       const fontSize = (compact ? 10 : 11.5) / Math.max(0.8, Math.sqrt(v.k));
-      ctx.font = `500 ${fontSize}px Inter, sans-serif`;
+      ctx.font = `500 ${fontSize}px ${P.font}`;
       for (const n of nodesRef.current) {
         const show = hover ? neighbors.has(n.id) : labelAlpha > 0.02 || n.id === focusId;
         if (!show) continue;
         ctx.globalAlpha = hover ? (n === hover ? 1 : 0.85) : n.id === focusId ? 1 : labelAlpha * 0.8;
-        ctx.fillStyle = n === hover ? '#fff' : n.kind === 'ghost' ? '#7d858f' : '#d0d6dd';
+        ctx.fillStyle = n === hover ? '#fff' : n.kind === 'ghost' ? P.labelGhost : P.label;
         const label = n.label.length > 28 ? n.label.slice(0, 27) + '…' : n.label;
         ctx.fillText(label, n.x!, n.y! + radius(n) + 4);
       }
@@ -379,17 +424,17 @@ function radius(n: GNode): number {
   return 3.5;
 }
 
-function nodeColor(n: GNode, accent: string, focus: boolean): string {
-  if (focus) return '#ffffff';
+function nodeColor(n: GNode, accent: string, focus: boolean, P: GraphPalette): string {
+  if (focus) return P.focus;
   switch (n.kind) {
     case 'note':
       return accent;
     case 'ghost':
-      return '#5a616b';
+      return P.ghost;
     case 'tag':
-      return tagColor(n.ref ?? n.label);
+      return (P.tagColor ?? tagColor)(n.ref ?? n.label);
     case 'task':
-      return n.done ? '#3ddc84' : '#22d3ee';
+      return n.done ? P.taskDone : P.task;
   }
 }
 

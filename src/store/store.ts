@@ -22,23 +22,43 @@ export const uid = () =>
     ? crypto.randomUUID().slice(0, 12)
     : Math.random().toString(36).slice(2, 14);
 
-/* ---------- debounced IndexedDB storage ---------- */
+/* ---------- debounced IndexedDB storage, shared across tabs and editions ---------- */
 
 let pendingWrite: { name: string; value: string } | null = null;
 let writeTimer: ReturnType<typeof setTimeout> | undefined;
+let inflight: Promise<void> = Promise.resolve();
+/** The serialized state we last read or wrote; identical writes are skipped (no echo between tabs). */
+let lastPersisted: string | null = null;
 
-function flushWrite() {
+const TAB_ID = Math.random().toString(36).slice(2);
+const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('mindpalace-state') : null;
+
+function flushWrite(): Promise<void> {
   clearTimeout(writeTimer);
   if (pendingWrite) {
     const { name, value } = pendingWrite;
     pendingWrite = null;
-    void idbSet(name, value);
+    inflight = idbSet(name, value).then(() => {
+      lastPersisted = value;
+      channel?.postMessage({ type: 'state-written', from: TAB_ID });
+    });
   }
+  return inflight;
+}
+
+/** Write any debounced state now; await before navigating to another edition. */
+export function flushPersist(): Promise<void> {
+  return flushWrite();
 }
 
 const idbStorage: StateStorage = {
-  getItem: async (name) => ((await idbGet(name)) as string | undefined) ?? null,
+  getItem: async (name) => {
+    const v = ((await idbGet(name)) as string | undefined) ?? null;
+    lastPersisted = v;
+    return v;
+  },
   setItem: (name, value) => {
+    if (value === lastPersisted && !pendingWrite) return;
     pendingWrite = { name, value };
     clearTimeout(writeTimer);
     writeTimer = setTimeout(flushWrite, 300);
@@ -49,9 +69,14 @@ const idbStorage: StateStorage = {
 };
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('pagehide', flushWrite);
+  window.addEventListener('pagehide', () => void flushWrite());
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') flushWrite();
+    if (document.visibilityState === 'hidden') void flushWrite();
+  });
+  // Another tab (e.g. the other edition) saved: reload our copy unless we have unsaved edits.
+  channel?.addEventListener('message', (e) => {
+    if (e.data?.type !== 'state-written' || e.data.from === TAB_ID || pendingWrite) return;
+    void useStore.persist.rehydrate();
   });
 }
 
@@ -69,6 +94,8 @@ export const DEFAULT_SETTINGS: Settings = {
   noteMode: 'edit',
   leftOpen: true,
   rightOpen: true,
+  termRain: true,
+  termTrail: true,
 };
 
 /** Accent swatches from the original pastel theme; v2 moves anyone still on one to the forge theme. */

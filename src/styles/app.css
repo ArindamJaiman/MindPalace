@@ -1048,3 +1048,14 @@ kbd {
     display: none;
   }
 }
+
+.ribbon-btn.edition-btn {
+  color: var(--text-muted);
+  border: 1px dashed var(--line-strong);
+}
+.ribbon-btn.edition-btn:hover {
+  color: #fff;
+  background: #000;
+  border-color: #ff2b2b;
+  box-shadow: -2px 0 0 #2b6bff, 2px 0 0 #ff2b2b;
+}

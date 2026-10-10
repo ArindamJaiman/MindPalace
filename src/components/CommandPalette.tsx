@@ -13,8 +13,10 @@ import {
   Search,
   Settings,
   Sparkles,
+  Terminal,
   Upload,
   Volume2,
+  DoorOpen,
 } from 'lucide-react';
 import { useStore } from '../store/store';
 import { useUi } from '../store/ui';
@@ -25,6 +27,7 @@ import { importDropped } from './DropZone';
 import { fx } from '../lib/fx';
 import { sfx } from '../lib/sound';
 import type { CursorStyle } from '../store/types';
+import { goToEdition } from '../editions';
 
 interface Item {
   id: string;
@@ -119,6 +122,21 @@ export function CommandPalette() {
         icon: <Volume2 size={16} />,
         group: 'Commands',
         run: () => st.setSettings({ sound: !st.settings.sound }),
+      },
+      {
+        id: 'c-terminal',
+        label: 'Switch to Terminal edition',
+        hint: 'hacker mode',
+        icon: <Terminal size={16} />,
+        group: 'Commands',
+        run: () => void goToEdition('terminal'),
+      },
+      {
+        id: 'c-gateway',
+        label: 'Choose edition (Gateway)',
+        icon: <DoorOpen size={16} />,
+        group: 'Commands',
+        run: () => void goToEdition('gateway'),
       },
       {
         id: 'c-confetti',
