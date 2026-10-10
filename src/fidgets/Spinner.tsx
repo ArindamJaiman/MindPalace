@@ -31,7 +31,8 @@ export function Spinner() {
         ghostRef.current.setAttribute('transform', `rotate(${s.angle - s.vel * 1.6} 150 150)`);
         ghostRef.current.style.opacity = String(Math.min(0.5, speed / 40));
       }
-      if (ref.current) ref.current.style.filter = `hue-rotate(${Math.min(speed * 4, 160)}deg) drop-shadow(0 0 ${Math.min(speed, 30)}px var(--accent))`;
+      // Heats up as it spins: brighter, with a growing molten glow.
+      if (ref.current) ref.current.style.filter = `brightness(${1 + Math.min(speed, 45) / 60}) drop-shadow(0 0 ${Math.min(speed, 32)}px var(--accent))`;
       const r = Math.round(speed * 10);
       if (r > s.peak) s.peak = r;
       if (++frame % 6 === 0) setRpm(r);
@@ -97,9 +98,9 @@ export function Spinner() {
       >
         <defs>
           <linearGradient id="spin-g" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#c4b5fd" />
-            <stop offset="0.5" stopColor="var(--accent)" />
-            <stop offset="1" stopColor="#4fd1c5" />
+            <stop offset="0" style={{ stopColor: '#a9b3bf' }} />
+            <stop offset="0.55" style={{ stopColor: '#3b424b' }} />
+            <stop offset="1" style={{ stopColor: 'var(--accent)' }} />
           </linearGradient>
           <radialGradient id="bearing-g">
             <stop offset="0" stopColor="#fff" />

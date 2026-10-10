@@ -4,7 +4,7 @@
   "description": "Tasks, linked notes and a little dopamine.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d0d14",
-  "theme_color": "#0d0d14",
+  "background_color": "#050607",
+  "theme_color": "#050607",
   "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
 }

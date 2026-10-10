@@ -5,7 +5,7 @@ import { useStore } from '../store/store';
 import type { Completion } from '../store/types';
 import { DAY, dayKey, daysAgo, formatTime, startOfDay } from '../lib/dates';
 import { countByDay, levelInfo, streak } from '../lib/xp';
-import { hueFor } from '../lib/links';
+import { tagColor } from '../lib/links';
 import { todayProgress } from '../lib/tasks';
 
 const RINGS = 14;
@@ -15,7 +15,7 @@ interface Planet {
   ring: number;
   angle: number;
   size: number;
-  hue: number;
+  color: string | null;
   phase: number;
   delay: number;
 }
@@ -51,7 +51,7 @@ function OrbitCanvas({ completions, progress, accent }: { completions: Completio
         ring,
         angle: (minutes / 1440) * Math.PI * 2 - Math.PI / 2,
         size: 2.6 + c.priority * 1.1,
-        hue: c.tags[0] ? hueFor(c.tags[0]) : -1,
+        color: c.tags[0] ? tagColor(c.tags[0]) : null,
         phase: Math.random() * Math.PI * 2,
         delay: 300 + i * Math.max(18, 900 / Math.max(1, list.length)),
       };
@@ -123,7 +123,7 @@ function OrbitCanvas({ completions, progress, accent }: { completions: Completio
       // starfield
       for (const s of stars) {
         ctx.globalAlpha = 0.25 + 0.35 * (0.5 + 0.5 * Math.sin(t * 0.0012 + s.tw));
-        ctx.fillStyle = '#cfd2ff';
+        ctx.fillStyle = '#c5cdd6';
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fill();
@@ -133,7 +133,7 @@ function OrbitCanvas({ completions, progress, accent }: { completions: Completio
       // rings
       for (let i = 0; i < RINGS; i++) {
         const r = inner + i * gap;
-        ctx.strokeStyle = i === 0 ? `${accent}8c` : `rgba(180,180,255,${0.11 - i * 0.005})`;
+        ctx.strokeStyle = i === 0 ? `${accent}8c` : `rgba(170,185,200,${0.1 - i * 0.005})`;
         ctx.lineWidth = i === 0 ? 1.4 : 1;
         ctx.setLineDash(i === 0 ? [] : [2, 5]);
         ctx.beginPath();
@@ -151,13 +151,13 @@ function OrbitCanvas({ completions, progress, accent }: { completions: Completio
         const major = hr % 6 === 0;
         const r1 = maxR + 6;
         const r2 = maxR + (major ? 14 : 10);
-        ctx.strokeStyle = major ? 'rgba(220,220,255,0.45)' : 'rgba(220,220,255,0.15)';
+        ctx.strokeStyle = major ? 'rgba(210,218,226,0.45)' : 'rgba(210,218,226,0.14)';
         ctx.beginPath();
         ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
         ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
         ctx.stroke();
         if (major) {
-          ctx.fillStyle = 'rgba(220,220,255,0.55)';
+          ctx.fillStyle = 'rgba(210,218,226,0.55)';
           const label = hr === 0 ? '00' : hr === 6 ? '06' : hr === 12 ? '12' : '18';
           ctx.fillText(label, cx + Math.cos(a) * (maxR + 26), cy + Math.sin(a) * (maxR + 26));
         }
@@ -231,7 +231,7 @@ function OrbitCanvas({ completions, progress, accent }: { completions: Completio
         const x = cx + Math.cos(a) * r;
         const y = cy + Math.sin(a) * r;
         positions.push({ x, y, p });
-        const color = p.hue < 0 ? accent : `hsl(${p.hue} 90% 66%)`;
+        const color = p.color ?? accent;
         const isTip = lastTip === p;
         const size = p.size * (isTip ? 1.8 : 1) * (0.5 + ease * 0.5);
         // trail while launching
@@ -441,13 +441,13 @@ export function OrbitView() {
             <div className="card-title">Where your energy goes</div>
             {topTags.map(([tag, n]) => (
               <div key={tag} className="tag-bar">
-                <span className="tag-bar-label" style={{ color: `hsl(${hueFor(tag)} 85% 70%)` }}>
+                <span className="tag-bar-label" style={{ color: tagColor(tag) }}>
                   #{tag}
                 </span>
                 <div className="tag-bar-track">
                   <motion.div
                     className="tag-bar-fill"
-                    style={{ background: `hsl(${hueFor(tag)} 85% 62%)` }}
+                    style={{ background: tagColor(tag) }}
                     initial={{ width: 0 }}
                     animate={{ width: `${(n / topTags[0][1]) * 100}%` }}
                   />

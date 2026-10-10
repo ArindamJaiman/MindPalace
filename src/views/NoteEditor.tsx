@@ -18,7 +18,7 @@ const highlight = HighlightStyle.define([
   { tag: t.strikethrough, textDecoration: 'line-through', color: 'var(--text-faint)' },
   { tag: t.link, color: 'var(--accent)' },
   { tag: t.url, color: 'var(--text-faint)' },
-  { tag: t.monospace, fontFamily: 'var(--mono)', color: '#ff9ecf', fontSize: '0.92em' },
+  { tag: t.monospace, fontFamily: 'var(--mono)', color: '#ffb86b', fontSize: '0.92em' },
   { tag: t.quote, color: 'var(--text-muted)', fontStyle: 'italic' },
   { tag: [t.processingInstruction, t.meta, t.contentSeparator], color: 'var(--text-faint)' },
 ]);

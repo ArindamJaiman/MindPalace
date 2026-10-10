@@ -4,7 +4,7 @@ import { useStore } from '../store/store';
 import { fx } from '../lib/fx';
 import { sfx } from '../lib/sound';
 
-const ROWS = ['#ff5d73', '#ff9f43', '#ffd93d', '#5ee6a0', '#4fc3f7', '#a78bfa'];
+const ROWS = ['#ff3b30', '#ff6a1a', '#ffb020', '#3ddc84', '#22d3ee', '#8fa3b8'];
 const COLS = 6;
 
 /** Rainbow pop-it. Swipe across it while holding the mouse to pop a whole row; it flips when all are popped. */

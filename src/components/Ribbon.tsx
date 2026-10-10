@@ -32,9 +32,9 @@ export function Ribbon() {
         <svg viewBox="0 0 64 64" width="26" height="26">
           <defs>
             <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#c4b5fd" />
-              <stop offset="0.5" stopColor="var(--accent)" />
-              <stop offset="1" stopColor="#4fd1c5" />
+              <stop offset="0" style={{ stopColor: '#ffd08a' }} />
+              <stop offset="0.5" style={{ stopColor: 'var(--accent)' }} />
+              <stop offset="1" style={{ stopColor: 'var(--hot)' }} />
             </linearGradient>
           </defs>
           <path d="M32 8 L54 21 L54 43 L32 56 L10 43 L10 21 Z" fill="none" stroke="url(#logo-g)" strokeWidth="5" strokeLinejoin="round" />

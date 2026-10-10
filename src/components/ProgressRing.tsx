@@ -19,9 +19,9 @@ export function ProgressRing({ value, size = 120, stroke = 10, label, sublabel }
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--accent)" />
-            <stop offset="55%" stopColor="#ff7ab6" />
-            <stop offset="100%" stopColor="#ffc857" />
+            <stop offset="0%" style={{ stopColor: 'var(--hot)' }} />
+            <stop offset="55%" style={{ stopColor: 'var(--accent)' }} />
+            <stop offset="100%" style={{ stopColor: 'var(--gold)' }} />
           </linearGradient>
         </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--ring-track)" strokeWidth={stroke} />
@@ -37,7 +37,7 @@ export function ProgressRing({ value, size = 120, stroke = 10, label, sublabel }
           initial={{ strokeDashoffset: c }}
           animate={{ strokeDashoffset: c * (1 - v) }}
           transition={{ type: 'spring', stiffness: 60, damping: 14 }}
-          style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%', filter: v >= 1 ? 'drop-shadow(0 0 8px #ffc857)' : undefined }}
+          style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%', filter: v >= 1 ? 'drop-shadow(0 0 8px #ffb020)' : 'drop-shadow(0 0 5px var(--accent-glow))' }}
         />
       </svg>
       {(label || sublabel) && (

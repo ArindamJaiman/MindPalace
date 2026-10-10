@@ -4,7 +4,7 @@ import { useStore } from '../store/store';
 import { fx } from '../lib/fx';
 import { sfx } from '../lib/sound';
 
-const LEDS = ['#ff5d73', '#ffd93d', '#5ee6a0', '#4fc3f7', '#a78bfa'];
+const LEDS = ['#ff3b30', '#ffb020', '#3ddc84', '#22d3ee', '#ff6a1a'];
 const STEPS = 12;
 
 /** Clicky toggles, a detented rotary knob and a big arcade button. */
@@ -62,7 +62,7 @@ export function SwitchBoard() {
                   cy={60 + Math.sin(a) * 52}
                   r="3.2"
                   className={i <= knob ? 'lit' : ''}
-                  style={{ '--h': `${200 + i * 12}` } as React.CSSProperties}
+                  style={{ '--h': `${48 - i * 4}` } as React.CSSProperties}
                 />
               );
             })}
@@ -103,14 +103,14 @@ export function SwitchBoard() {
               setPresses((p) => p + 1);
               bump('buttonPresses');
               sfx.click();
-              fx.burstAt(btnRef.current, { count: 30, speed: 7, colors: ['#ff5d73', '#ffd93d', '#ffffff'] });
+              fx.burstAt(btnRef.current, { count: 30, speed: 7, colors: ['#ff3b30', '#ffb020', '#ffffff'] });
             }}
             onPointerLeave={() => setPressed(false)}
             aria-label="Big satisfying button"
           >
             <span className="arcade-cap" />
           </button>
-          <motion.div key={presses} className="arcade-count" initial={{ scale: 1.6, color: '#ffd93d' }} animate={{ scale: 1, color: 'var(--text-muted)' }}>
+          <motion.div key={presses} className="arcade-count" initial={{ scale: 1.6, color: '#ffb020' }} animate={{ scale: 1, color: 'var(--text-muted)' }}>
             {presses} presses
           </motion.div>
         </div>

@@ -64,7 +64,7 @@ export interface AppNotification {
   link?: string;
 }
 
-export type CursorStyle = 'comet' | 'ribbon' | 'minimal' | 'off';
+export type CursorStyle = 'embers' | 'tracer' | 'reticle' | 'off';
 export type NoteMode = 'edit' | 'read' | 'split';
 
 export interface Settings {

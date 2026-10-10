@@ -59,8 +59,8 @@ if (typeof window !== 'undefined') {
 
 export const DEFAULT_SETTINGS: Settings = {
   name: '',
-  accent: '#8b7bff',
-  cursor: 'comet',
+  accent: '#ff6a1a',
+  cursor: 'embers',
   cursorMorph: true,
   sound: true,
   volume: 0.6,
@@ -70,6 +70,10 @@ export const DEFAULT_SETTINGS: Settings = {
   leftOpen: true,
   rightOpen: true,
 };
+
+/** Accent swatches from the original pastel theme; v2 moves anyone still on one to the forge theme. */
+const LEGACY_ACCENTS = ['#8b7bff', '#4fd1c5', '#ff7ab6', '#ffc857', '#5ee6a0', '#7cc4ff', '#ff8a5c'];
+const LEGACY_CURSORS: Record<string, Settings['cursor']> = { comet: 'embers', ribbon: 'tracer', minimal: 'reticle' };
 
 const DEFAULT_FIDGET: FidgetStats = { pops: 0, flips: 0, bestRpm: 0, switches: 0, buttonPresses: 0, squishes: 0 };
 
@@ -490,7 +494,20 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: 'mindpalace-v1',
-      version: 1,
+      version: 2,
+      migrate: (persisted, version) => {
+        const p = (persisted ?? {}) as Partial<Data>;
+        if (version < 2 && p.settings) {
+          const cursor = LEGACY_CURSORS[p.settings.cursor as string];
+          if (cursor) p.settings = { ...p.settings, cursor };
+          if (LEGACY_ACCENTS.includes(p.settings.accent)) {
+            p.settings = { ...p.settings, accent: DEFAULT_SETTINGS.accent };
+            // Count it as a fresh local change so an old synced accent doesn't win it back.
+            p.profileUpdatedAt = Date.now();
+          }
+        }
+        return p as StoreState;
+      },
       storage: createJSONStorage(() => idbStorage),
       partialize: (s) => {
         const out: Record<string, unknown> = {};

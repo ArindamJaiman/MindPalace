@@ -92,8 +92,11 @@ export function hueFor(s: string): number {
   return h % 360;
 }
 
-export function tagColor(tag: string, l = 70): string {
-  return `hsl(${hueFor(tag)} 80% ${l}%)`;
+/** Tags draw from a fixed forge palette (fire, steel, signal colours) rather than any hue. */
+const TAG_PALETTE = ['#ff8a3d', '#ffb020', '#ff5a4a', '#22d3ee', '#3ddc84', '#9fb3c8', '#f5d06f', '#5eead4'];
+
+export function tagColor(tag: string): string {
+  return TAG_PALETTE[hueFor(tag) % TAG_PALETTE.length];
 }
 
 export function wordCount(md: string): number {

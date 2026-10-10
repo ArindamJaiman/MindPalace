@@ -288,7 +288,7 @@ export function GraphCanvas(props: Props) {
         const s = l.source as GNode;
         const t = l.target as GNode;
         const lit = hover && (s.id === hover.id || t.id === hover.id);
-        ctx.strokeStyle = lit ? accent : hover ? 'rgba(255,255,255,0.04)' : 'rgba(200,200,255,0.13)';
+        ctx.strokeStyle = lit ? accent : hover ? 'rgba(255,255,255,0.035)' : 'rgba(190,200,215,0.12)';
         ctx.globalAlpha = lit ? 0.9 : 1;
         ctx.beginPath();
         ctx.moveTo(s.x!, s.y!);
@@ -328,7 +328,7 @@ export function GraphCanvas(props: Props) {
         ctx.arc(n.x!, n.y!, r, 0, Math.PI * 2);
         ctx.fill();
         if (n.kind === 'ghost') {
-          ctx.fillStyle = 'rgba(13,13,20,0.9)';
+          ctx.fillStyle = 'rgba(6,7,8,0.95)';
           ctx.beginPath();
           ctx.arc(n.x!, n.y!, r * 0.55, 0, Math.PI * 2);
           ctx.fill();
@@ -346,7 +346,7 @@ export function GraphCanvas(props: Props) {
         const show = hover ? neighbors.has(n.id) : labelAlpha > 0.02 || n.id === focusId;
         if (!show) continue;
         ctx.globalAlpha = hover ? (n === hover ? 1 : 0.85) : n.id === focusId ? 1 : labelAlpha * 0.8;
-        ctx.fillStyle = n === hover ? '#fff' : n.kind === 'ghost' ? '#8a8aa3' : '#d8d8e8';
+        ctx.fillStyle = n === hover ? '#fff' : n.kind === 'ghost' ? '#7d858f' : '#d0d6dd';
         const label = n.label.length > 28 ? n.label.slice(0, 27) + '…' : n.label;
         ctx.fillText(label, n.x!, n.y! + radius(n) + 4);
       }
@@ -380,16 +380,16 @@ function radius(n: GNode): number {
 }
 
 function nodeColor(n: GNode, accent: string, focus: boolean): string {
-  if (focus) return '#ffc857';
+  if (focus) return '#ffffff';
   switch (n.kind) {
     case 'note':
       return accent;
     case 'ghost':
-      return '#6b6b85';
+      return '#5a616b';
     case 'tag':
-      return tagColor(n.ref ?? n.label, 68);
+      return tagColor(n.ref ?? n.label);
     case 'task':
-      return n.done ? '#5ee6a0' : '#4fd1c5';
+      return n.done ? '#3ddc84' : '#22d3ee';
   }
 }
 
@@ -447,7 +447,7 @@ export function GraphView() {
         </span>
         {showTasks && (
           <span>
-            <i style={{ background: '#4fd1c5' }} /> task
+            <i style={{ background: '#22d3ee' }} /> task
           </span>
         )}
         {showTags && (

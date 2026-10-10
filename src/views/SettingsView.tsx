@@ -11,11 +11,11 @@ import { fx } from '../lib/fx';
 import { AccountSection } from '../sync/AccountSection';
 import { syncNow } from '../sync/sync';
 
-const ACCENTS = ['#8b7bff', '#4fd1c5', '#ff7ab6', '#ffc857', '#5ee6a0', '#7cc4ff', '#ff8a5c'];
+const ACCENTS = ['#ff6a1a', '#ff3b30', '#ffb020', '#22d3ee', '#3ddc84', '#8fa3b8', '#a855f7'];
 const CURSORS: { id: CursorStyle; label: string; desc: string }[] = [
-  { id: 'comet', label: 'Comet', desc: 'Glowing particle trail' },
-  { id: 'ribbon', label: 'Ribbon', desc: 'Silky neon streak' },
-  { id: 'minimal', label: 'Minimal', desc: 'Just the springy ring' },
+  { id: 'embers', label: 'Embers', desc: 'Sparks fly off your cursor' },
+  { id: 'tracer', label: 'Tracer', desc: 'Hot plasma streak' },
+  { id: 'reticle', label: 'Reticle', desc: 'Just the lock-on sight' },
   { id: 'off', label: 'Off', desc: 'Your normal cursor' },
 ];
 
@@ -123,7 +123,7 @@ export function SettingsView() {
               </button>
             ))}
           </div>
-          <Row title="Morph around buttons" desc="The ring wraps itself around whatever you hover.">
+          <Row title="Lock on to buttons" desc="The reticle snaps its brackets around whatever you hover.">
             <Toggle on={settings.cursorMorph} onChange={(v) => setSettings({ cursorMorph: v })} label="Cursor morph" />
           </Row>
         </Card>

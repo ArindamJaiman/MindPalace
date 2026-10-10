@@ -2,18 +2,18 @@ import type { Completion, Priority } from '../store/types';
 import { DAY, dayKey, startOfDay } from './dates';
 
 const TITLES = [
-  'Spark',
-  'Wanderer',
-  'Doodler',
-  'Thinker',
-  'Builder',
-  'Tinkerer',
-  'Architect',
-  'Curator',
-  'Strategist',
-  'Sage',
-  'Oracle',
-  'Archmage of the Palace',
+  'Recruit',
+  'Scout',
+  'Operator',
+  'Specialist',
+  'Sergeant',
+  'Lieutenant',
+  'Captain',
+  'Major',
+  'Commander',
+  'Warlord',
+  'Titan',
+  'Legend of the Palace',
 ];
 
 /** Total XP required to reach `level` (level 1 needs 0). */

@@ -100,6 +100,7 @@ export const sfx = {
   /** Task completion: climbs the pentatonic scale as your combo grows. */
   complete(combo = 1) {
     const i = Math.min(combo - 1, PENTA.length - 3);
+    tone(130, 0.14, { type: 'sine', gain: 0.4, slideTo: 55 }); // low punch under the chime
     tone(PENTA[i] * 2, 0.35, { type: 'triangle', gain: 0.22 });
     tone(PENTA[i + 2] * 2, 0.45, { type: 'sine', gain: 0.14, delay: 0.06 });
     noise(0.04, { gain: 0.08, freq: 6000, q: 1 });

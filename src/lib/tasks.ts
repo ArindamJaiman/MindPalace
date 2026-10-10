@@ -41,6 +41,7 @@ export function sortTasks(a: Task, b: Task): number {
 
 let combo = 0;
 let lastCompleteAt = 0;
+const COMBO_COLORS = ['#ffb020', '#ff6a1a', '#ff3b30', '#22d3ee', '#ffffff'];
 
 /**
  * Toggle a task with all the juice: sound, particles, XP text, combos and level-ups.
@@ -59,7 +60,7 @@ export function toggleTaskWithFx(id: string, anchor: Element | null, commitDelay
   if (task.done) {
     const res = store.toggleTask(id, 1);
     sfx.uncomplete();
-    if (res?.xp) fx.text(x + 30, y - 10, `${res.xp} XP`, '#8a8aa3', 14);
+    if (res?.xp) fx.text(x + 30, y - 10, `${res.xp} XP`, '#7d858f', 14);
     return;
   }
 
@@ -72,11 +73,11 @@ export function toggleTaskWithFx(id: string, anchor: Element | null, commitDelay
 
   sfx.complete(myCombo);
   fx.ripple(x, y, accent, 46);
-  fx.burst(x, y, { count: 22 + myCombo * 6, speed: 5 + myCombo * 0.7, colors: [accent, '#4fd1c5', '#ffc857', '#ff7ab6'] });
-  fx.text(x + 34, y - 6, `+${gained} XP`, '#ffc857');
+  fx.burst(x, y, { count: 22 + myCombo * 6, speed: 5 + myCombo * 0.7, colors: [accent, '#ffb020', '#ff3b30', '#ffffff', '#22d3ee'] });
+  fx.text(x + 34, y - 6, `+${gained} XP`, '#ffb020');
   if (myCombo >= 2) {
-    const hue = (myCombo * 47) % 360;
-    setTimeout(() => fx.text(x + 120, y - 26, `x${myCombo} COMBO!`, `hsl(${hue} 95% 68%)`, 15 + Math.min(myCombo, 6) * 2), 120);
+    const color = COMBO_COLORS[(myCombo - 2) % COMBO_COLORS.length];
+    setTimeout(() => fx.text(x + 120, y - 26, `x${myCombo} COMBO!`, color, 15 + Math.min(myCombo, 6) * 2), 120);
   }
 
   const wasDueToday = isDueToday(task);

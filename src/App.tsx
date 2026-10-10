@@ -37,8 +37,8 @@ function Splash() {
     <div className="splash">
       <motion.div className="splash-logo" animate={{ scale: [1, 1.08, 1], rotate: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.4 }}>
         <svg viewBox="0 0 64 64" width="64" height="64">
-          <path d="M32 8 L54 21 L54 43 L32 56 L10 43 L10 21 Z" fill="none" stroke="#8b7bff" strokeWidth="4" strokeLinejoin="round" />
-          <circle cx="32" cy="32" r="8" fill="#8b7bff" />
+          <path d="M32 8 L54 21 L54 43 L32 56 L10 43 L10 21 Z" fill="none" stroke="#ff6a1a" strokeWidth="4" strokeLinejoin="round" />
+          <circle cx="32" cy="32" r="8" fill="#ff6a1a" />
         </svg>
       </motion.div>
       <div className="splash-text">Opening your MindPalace…</div>

@@ -50,7 +50,7 @@ let raf = 0;
 let last = 0;
 let reduced = false;
 
-export const PALETTE = ['#8b7bff', '#4fd1c5', '#ff7ab6', '#ffc857', '#5ee6a0', '#7cc4ff'];
+export const PALETTE = ['#ff6a1a', '#ffb020', '#ff3b30', '#22d3ee', '#ffffff', '#ffd08a'];
 
 export function setReducedMotion(v: boolean) {
   reduced = v;
@@ -125,12 +125,12 @@ export const fx = {
   sparkle(x: number, y: number, color?: string) {
     burst(x, y, { count: 8, speed: 3.2, gravity: 0.02, size: 2.6, colors: color ? [color] : undefined, shapes: ['circle', 'star'] });
   },
-  ripple(x: number, y: number, color = 'rgba(139,123,255,0.8)', radius = 40) {
+  ripple(x: number, y: number, color = 'rgba(255,106,26,0.8)', radius = 40) {
     if (reduced) return;
     ripples.push({ x, y, life: 0, max: 32, radius, color });
     wake();
   },
-  text(x: number, y: number, text: string, color = '#ffc857', size = 18) {
+  text(x: number, y: number, text: string, color = '#ffb020', size = 18) {
     texts.push({ x, y, text, color, life: 0, max: 70, size });
     wake();
   },
@@ -238,7 +238,7 @@ function loop(now: number) {
     }
     const pop = t < 0.15 ? 0.6 + (t / 0.15) * 0.55 : t < 0.25 ? 1.15 - ((t - 0.15) / 0.1) * 0.15 : 1;
     ctx.globalAlpha = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
-    ctx.font = `700 ${f.size * pop}px "Space Grotesk", Inter, sans-serif`;
+    ctx.font = `700 ${f.size * pop}px "Chakra Petch", Inter, sans-serif`;
     ctx.shadowColor = f.color;
     ctx.shadowBlur = 14;
     ctx.fillStyle = f.color;

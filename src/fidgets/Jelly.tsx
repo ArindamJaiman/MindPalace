@@ -186,9 +186,10 @@ export function Jelly() {
     <svg ref={svgRef} viewBox="0 0 300 300" className="jelly" data-nosnap>
       <defs>
         <radialGradient id="jelly-g" cx="40%" cy="35%" r="75%">
-          <stop offset="0" stopColor="#ffd1ea" />
-          <stop offset="0.45" stopColor="#ff7ab6" />
-          <stop offset="1" stopColor="var(--accent)" />
+          <stop offset="0" style={{ stopColor: '#ffe2a8' }} />
+          <stop offset="0.35" style={{ stopColor: 'var(--accent)' }} />
+          <stop offset="0.8" style={{ stopColor: '#6b1a04' }} />
+          <stop offset="1" style={{ stopColor: '#2a0a02' }} />
         </radialGradient>
         <clipPath id="eye-l">
           <circle cx={C - 24} cy={C - 10} r="12" />
@@ -199,23 +200,21 @@ export function Jelly() {
       </defs>
       <ellipse cx={C} cy={C + R + 22} rx={R * 0.9} ry="10" fill="rgba(0,0,0,0.35)" />
       <path ref={bodyRef} fill="url(#jelly-g)" className="jelly-body" />
-      <path ref={shineRef} d={`M${C - 50},${C - 40} Q${C - 40},${C - 70} ${C - 5},${C - 72}`} stroke="rgba(255,255,255,0.6)" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <path ref={shineRef} d={`M${C - 50},${C - 40} Q${C - 40},${C - 70} ${C - 5},${C - 72}`} stroke="rgba(255,236,200,0.4)" strokeWidth="9" strokeLinecap="round" fill="none" />
       <g ref={faceRef}>
-        <circle cx={C - 24} cy={C - 10} r="12" fill="#fff" />
-        <circle cx={C + 24} cy={C - 10} r="12" fill="#fff" />
-        <circle ref={pupilL} cx={C - 24} cy={C - 10} r="6" fill="#1b1030" />
-        <circle ref={pupilR} cx={C + 24} cy={C - 10} r="6" fill="#1b1030" />
+        <circle cx={C - 24} cy={C - 10} r="12" fill="#fff4e0" />
+        <circle cx={C + 24} cy={C - 10} r="12" fill="#fff4e0" />
+        <circle ref={pupilL} cx={C - 24} cy={C - 10} r="6" fill="#120800" />
+        <circle ref={pupilR} cx={C + 24} cy={C - 10} r="6" fill="#120800" />
         <g ref={lidsRef}>
           <g clipPath="url(#eye-l)">
-            <rect className="lid" x={C - 37} y={C - 23} width="26" height="26" fill="#ff7ab6" />
+            <rect className="lid" x={C - 37} y={C - 23} width="26" height="26" fill="var(--accent)" />
           </g>
           <g clipPath="url(#eye-r)">
-            <rect className="lid" x={C + 11} y={C - 23} width="26" height="26" fill="#ff7ab6" />
+            <rect className="lid" x={C + 11} y={C - 23} width="26" height="26" fill="var(--accent)" />
           </g>
         </g>
-        <ellipse cx={C - 40} cy={C + 8} rx="8" ry="5" fill="rgba(255,90,140,0.55)" />
-        <ellipse cx={C + 40} cy={C + 8} rx="8" ry="5" fill="rgba(255,90,140,0.55)" />
-        <path ref={mouthRef} stroke="#1b1030" strokeWidth="3.5" strokeLinecap="round" fill="#5a1a3a" />
+        <path ref={mouthRef} stroke="#120800" strokeWidth="3.5" strokeLinecap="round" fill="#3a0d00" />
       </g>
     </svg>
   );

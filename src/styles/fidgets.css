@@ -14,7 +14,7 @@
   font-family: var(--display);
   font-size: 34px;
   margin: 0;
-  background: linear-gradient(90deg, #ff5d73, #ffd93d, #5ee6a0, #4fc3f7, #a78bfa);
+  background: linear-gradient(90deg, #ffb020, #ff6a1a, #ff3b30, #ff6a1a, #ffb020);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -41,7 +41,7 @@
   align-items: center;
   min-width: 70px;
   padding: 6px 10px;
-  border-radius: 12px;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
 }
@@ -62,9 +62,9 @@
   gap: 16px;
 }
 .fidget-card {
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 16px 18px 18px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
   border: 1px solid var(--line);
   display: flex;
   flex-direction: column;
@@ -105,8 +105,8 @@
   flex-direction: column;
   gap: 8px;
   padding: 18px;
-  border-radius: 34px;
-  background: linear-gradient(145deg, #2b2440, #1c1830);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #23272d, #0f1114);
   box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -4px 0 rgba(0, 0, 0, 0.3);
   backface-visibility: hidden;
 }
@@ -182,7 +182,7 @@
   touch-action: none;
 }
 .jelly-body {
-  filter: drop-shadow(0 0 30px rgba(255, 122, 182, 0.35));
+  filter: drop-shadow(0 0 34px rgba(255, 106, 26, 0.45));
 }
 
 /* ---------- switchboard ---------- */
@@ -191,8 +191,8 @@
   width: 100%;
   max-width: 420px;
   padding: 22px;
-  border-radius: 22px;
-  background: linear-gradient(160deg, #23233a, #16162a);
+  border-radius: 8px;
+  background: linear-gradient(160deg, #1d2025, #0c0d10);
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.06), inset 0 -4px 0 rgba(0, 0, 0, 0.35), 0 30px 50px -24px rgba(0, 0, 0, 0.8);
 }
 .toggles {
@@ -220,8 +220,8 @@
 .switch-track {
   width: 30px;
   height: 56px;
-  border-radius: 10px;
-  background: #0d0d18;
+  border-radius: 4px;
+  background: #060708;
   box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.8);
   padding: 4px;
   display: flex;
@@ -234,7 +234,7 @@
 .switch-thumb {
   width: 22px;
   height: 24px;
-  border-radius: 7px;
+  border-radius: 4px;
   background: linear-gradient(180deg, #f2f2f8, #a8a8bd);
   box-shadow: 0 3px 0 #6c6c80, 0 4px 8px rgba(0, 0, 0, 0.5);
 }
@@ -258,7 +258,7 @@
   height: 120px;
 }
 .knob-leds circle {
-  fill: #2a2a3e;
+  fill: #262a30;
   transition: fill 0.1s;
 }
 .knob-leds circle.lit {
@@ -272,7 +272,7 @@
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, #3a3a52, #24243a, #3a3a52, #24243a, #3a3a52);
+  background: conic-gradient(from 0deg, #3d434c, #1f2328, #3d434c, #1f2328, #3d434c);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.12);
   transition: transform 0.15s var(--spring);
   touch-action: none;
@@ -282,7 +282,7 @@
   position: absolute;
   inset: 10px;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #4a4a66, #22223a);
+  background: radial-gradient(circle at 40% 35%, #4a515b, #1b1e23);
 }
 .knob-mark {
   position: absolute;
@@ -310,7 +310,7 @@
   width: 104px;
   height: 104px;
   border-radius: 50%;
-  background: radial-gradient(circle, #1a1a28 60%, #0c0c16);
+  background: radial-gradient(circle, #16181c 60%, #08090b);
   box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.9), 0 2px 0 rgba(255, 255, 255, 0.06);
   display: grid;
   place-items: center;
@@ -319,17 +319,17 @@
   width: 78px;
   height: 78px;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 30%, #ff9aa8, #ff3b5c 55%, #b3123a);
-  box-shadow: 0 8px 0 #8a0d2c, 0 12px 20px rgba(0, 0, 0, 0.6), 0 0 30px -4px rgba(255, 59, 92, 0.6);
+  background: radial-gradient(circle at 40% 30%, #ff8f7a, #e8261c 55%, #8f1208);
+  box-shadow: 0 8px 0 #620b05, 0 12px 20px rgba(0, 0, 0, 0.6), 0 0 30px -4px rgba(255, 50, 30, 0.6);
   transform: translateY(-6px);
   transition: transform 0.08s, box-shadow 0.08s;
 }
 .arcade:hover .arcade-cap {
-  box-shadow: 0 8px 0 #8a0d2c, 0 12px 20px rgba(0, 0, 0, 0.6), 0 0 44px -2px rgba(255, 59, 92, 0.85);
+  box-shadow: 0 8px 0 #620b05, 0 12px 20px rgba(0, 0, 0, 0.6), 0 0 44px -2px rgba(255, 50, 30, 0.85);
 }
 .arcade.pressed .arcade-cap {
   transform: translateY(1px);
-  box-shadow: 0 1px 0 #8a0d2c, 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 60px rgba(255, 59, 92, 0.9);
+  box-shadow: 0 1px 0 #620b05, 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 60px rgba(255, 50, 30, 0.9);
 }
 .arcade-count {
   font-size: 12px;

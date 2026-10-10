@@ -54,7 +54,7 @@ function fuzzy(q: string, text: string): number {
   return score;
 }
 
-const CURSORS: CursorStyle[] = ['comet', 'ribbon', 'minimal', 'off'];
+const CURSORS: CursorStyle[] = ['embers', 'tracer', 'reticle', 'off'];
 
 export function CommandPalette() {
   const { paletteOpen, setPalette } = useUi();

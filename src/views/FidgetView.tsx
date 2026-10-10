@@ -8,7 +8,7 @@ import { Jelly } from '../fidgets/Jelly';
 const CARDS = [
   { id: 'popit', title: 'Pop-it', hint: 'Hold and swipe to pop a whole row. Pop them all to flip it.', el: <PopIt /> },
   { id: 'spinner', title: 'Spinner', hint: 'Grab it and flick. How high can the RPM go?', el: <Spinner /> },
-  { id: 'jelly', title: 'Blobby', hint: 'Poke, pull and squish. Blobby is watching you.', el: <Jelly /> },
+  { id: 'jelly', title: 'Magma', hint: 'Poke, pull and squish the molten blob. It is watching you.', el: <Jelly /> },
   { id: 'switches', title: 'Switchboard', hint: 'Clicky switches, a notched knob and THE button.', el: <SwitchBoard /> },
 ];
 

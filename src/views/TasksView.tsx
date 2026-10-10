@@ -30,7 +30,7 @@ const EXAMPLES = [
   'Water the plants at 9am #home',
 ];
 
-const PRIORITY_COLOR = ['var(--text-faint)', '#7cc4ff', '#ffc857', '#ff6b8b'];
+const PRIORITY_COLOR = ['var(--text-faint)', '#22d3ee', '#ffb020', '#ff3b30'];
 
 /* ------------------------------------------------------------------ */
 
@@ -434,7 +434,7 @@ export function TasksView() {
           <div className="hero-text">
             <div className="hero-greeting">
               {greeting()}
-              {name ? `, ${name}` : ''} 👋
+              {name ? `, ${name}` : ''}
             </div>
             <h1 className="hero-title">
               {LIST_TITLE[taskList]}
