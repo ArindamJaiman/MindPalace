@@ -71,7 +71,7 @@ export function SectionHead({ index, title, path, cmd, reduce }: Props) {
       <div className="sh-index">
         <span className="r">{index}</span> // {title.toLowerCase()}
       </div>
-      <pre className="sh-title" aria-label={title} />
+      <pre className="sh-title" ref={titleRef} aria-label={title} />
       <div className="sh-prompt">
         <span className="pb">┌──(</span>
         <span className="pr">{userHandle(name)}㉿mindpalace</span>

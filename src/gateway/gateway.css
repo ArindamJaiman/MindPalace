@@ -62,6 +62,7 @@ kbd {
   position: relative;
   flex: 1 1 0;
   min-width: 0;
+  container-type: inline-size;
   overflow: hidden;
   cursor: pointer;
   outline: none;
@@ -88,7 +89,7 @@ kbd {
 }
 .gw-title {
   margin: 0;
-  font-size: clamp(64px, 11vw, 168px);
+  font-size: clamp(40px, 19cqw, 168px);
   line-height: 0.88;
   white-space: nowrap;
 }
@@ -253,6 +254,7 @@ kbd {
 }
 .gw-term .gw-title {
   position: relative;
+  font-size: clamp(36px, 14cqw, 150px);
   font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
   font-weight: 400;
   color: #f2f2f2;

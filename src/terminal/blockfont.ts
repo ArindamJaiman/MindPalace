@@ -52,7 +52,7 @@ const G: Record<string, string[]> = {
 export function blockText(text: string, shadow = true): string {
   const glyphs = [...text.toUpperCase()].map((c) => G[c] ?? G[' ']);
   const rows = 5;
-  const lines = Array.from({ length: rows }, (_, r) => glyphs.map((g) => g[r]).join(' '));
+  const lines = Array.from({ length: rows }, (_, r) => glyphs.map((g) => g[r]).join(shadow ? '  ' : ' '));
   const width = lines[0].length;
   const H = rows + (shadow ? 1 : 0);
   const W = width + (shadow ? 1 : 0);

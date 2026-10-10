@@ -130,7 +130,7 @@ export function Gateway() {
       const tl = gsap.timeline();
       tl.from('.gw-panel', { yPercent: (i) => (i ? 100 : -100), duration: 0.9, ease: 'expo.out', stagger: 0.08 })
         .from('.gw-forge .gw-title', { y: 60, opacity: 0, duration: 0.7, ease: 'power3.out' }, '-=0.4')
-        .from('.gw-term .gw-title', { opacity: 0, duration: 0.05, repeat: 5, yoyo: true }, '<')
+        .fromTo('.gw-term .gw-title', { opacity: 0 }, { opacity: 1, duration: 0.05, repeat: 6, yoyo: true }, '<')
         .from('.gw-head', { y: -30, opacity: 0, duration: 0.5 }, '<0.1')
         .from('.gw-detail', { opacity: 0, y: 14, stagger: 0.05, duration: 0.4 }, '-=0.3');
     },

@@ -3,44 +3,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { FileText, FolderOpen, Image } from 'lucide-react';
 import { useStore } from '../store/store';
 import { toast } from '../store/ui';
-import { embedFor, importFiles } from '../lib/files';
+import { embedFor, importFiles, readDrop } from '../lib/files';
 import { navigate } from '../hooks/useRoute';
 import { fx } from '../lib/fx';
 import { sfx } from '../lib/sound';
 
-const SKIP_DIRS = new Set(['.obsidian', '.git', '.trash', 'node_modules']);
-
-async function walkEntry(entry: FileSystemEntry, prefix: string, out: File[]) {
-  if (entry.name.startsWith('.') && entry.name !== '.') {
-    if (entry.isDirectory || SKIP_DIRS.has(entry.name)) return;
-  }
-  if (entry.isFile) {
-    const file = await new Promise<File>((res, rej) => (entry as FileSystemFileEntry).file(res, rej));
-    if (prefix) Object.defineProperty(file, 'webkitRelativePath', { value: prefix + file.name });
-    out.push(file);
-  } else if (entry.isDirectory) {
-    if (SKIP_DIRS.has(entry.name)) return;
-    const reader = (entry as FileSystemDirectoryEntry).createReader();
-    const children: FileSystemEntry[] = [];
-    // readEntries returns results in batches; keep reading until it's empty.
-    for (;;) {
-      const batch = await new Promise<FileSystemEntry[]>((res, rej) => reader.readEntries(res, rej));
-      if (!batch.length) break;
-      children.push(...batch);
-    }
-    for (const child of children) await walkEntry(child, `${prefix}${entry.name}/`, out);
-  }
-}
-
 /** Import files (from drop, picker or paste) and show the result with some fanfare. */
-export async function importDropped(files: File[], entries?: FileSystemEntry[]) {
-  let all = files;
-  if (entries?.length) {
-    all = [];
-    for (const e of entries) await walkEntry(e, '', all);
-  }
-  if (!all.length) return;
-  const res = await importFiles(all);
+export async function importDropped(files: File[]) {
+  if (!files.length) return;
+  const res = await importFiles(files);
   const store = useStore.getState();
 
   if (res.attachments.length) {
@@ -92,13 +63,7 @@ export function DropZone() {
       e.preventDefault();
       depth.current = 0;
       setActive(false);
-      const dt = e.dataTransfer!;
-      // Entries must be grabbed synchronously, before the event finishes.
-      const entries = [...dt.items]
-        .filter((i) => i.kind === 'file')
-        .map((i) => i.webkitGetAsEntry?.())
-        .filter((x): x is FileSystemEntry => !!x);
-      void importDropped([...dt.files], entries.some((en) => en.isDirectory) ? entries : undefined);
+      void readDrop(e.dataTransfer!).then(importDropped);
       fx.burst(e.clientX, e.clientY, { count: 40, speed: 8 });
     };
     window.addEventListener('dragenter', onEnter);

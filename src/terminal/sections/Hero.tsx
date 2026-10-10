@@ -51,7 +51,7 @@ export function Hero({ reduce }: { reduce: boolean }) {
   const completions = useStore((s) => s.completions);
   const banner = useMemo(() => blockText('MINDPALACE'), []);
   const lvl = levelInfo(xp);
-  const sub = `operator ${userHandle(name)} // rank ${lvl.title.toUpperCase()} // ${xp} xp // streak ${streak(completions)}d`;
+  const sub = `user ${userHandle(name)} // rank ${lvl.title.toUpperCase()} // ${xp} xp // streak ${streak(completions)}d`;
 
   useGSAP(
     () => {

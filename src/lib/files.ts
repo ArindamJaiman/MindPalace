@@ -88,3 +88,42 @@ export function pickFiles(opts: { accept?: string; multiple?: boolean; directory
     input.click();
   });
 }
+
+const SKIP_DIRS = new Set(['.obsidian', '.git', '.trash', 'node_modules']);
+
+async function walkEntry(entry: FileSystemEntry, prefix: string, out: File[]) {
+  if (entry.name.startsWith('.') || SKIP_DIRS.has(entry.name)) return;
+  if (entry.isFile) {
+    const file = await new Promise<File>((res, rej) => (entry as FileSystemFileEntry).file(res, rej));
+    if (prefix) Object.defineProperty(file, 'webkitRelativePath', { value: prefix + file.name });
+    out.push(file);
+  } else if (entry.isDirectory) {
+    const reader = (entry as FileSystemDirectoryEntry).createReader();
+    const children: FileSystemEntry[] = [];
+    // readEntries returns results in batches; keep reading until it's empty.
+    for (;;) {
+      const batch = await new Promise<FileSystemEntry[]>((res, rej) => reader.readEntries(res, rej));
+      if (!batch.length) break;
+      children.push(...batch);
+    }
+    for (const child of children) await walkEntry(child, `${prefix}${entry.name}/`, out);
+  }
+}
+
+/**
+ * Read everything from a drop, expanding dropped folders (an Obsidian vault works).
+ * Entries are captured synchronously, so call this inside the drop handler.
+ */
+export function readDrop(dt: DataTransfer): Promise<File[]> {
+  const files = [...dt.files];
+  const entries = [...dt.items]
+    .filter((i) => i.kind === 'file')
+    .map((i) => i.webkitGetAsEntry?.())
+    .filter((x): x is FileSystemEntry => !!x);
+  if (!entries.some((e) => e.isDirectory)) return Promise.resolve(files);
+  return (async () => {
+    const out: File[] = [];
+    for (const e of entries) await walkEntry(e, '', out);
+    return out;
+  })();
+}

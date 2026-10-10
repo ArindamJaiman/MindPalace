@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { gsap, useGSAP } from '../gsap';
+import { gsap, useGSAP, ScrollTrigger } from '../gsap';
 import { SectionHead } from '../components/SectionHead';
 import { useStore } from '../../store/store';
 import type { Completion } from '../../store/types';
 import { DAY, dayKey, daysAgo, formatTime, startOfDay } from '../../lib/dates';
 import { countByDay, levelInfo, streak } from '../../lib/xp';
 import { todayProgress } from '../../lib/tasks';
+import { userHandle } from '../state';
 
 const RINGS = 14;
 
@@ -224,6 +225,7 @@ export function ReconSection({ reduce }: { reduce: boolean }) {
   const completions = useStore((s) => s.completions);
   const tasks = useStore((s) => s.tasks);
   const xp = useStore((s) => s.xp);
+  const name = useStore((s) => s.settings.name);
   const root = useRef<HTMLElement>(null);
   const lvl = levelInfo(xp);
   const prog = todayProgress(tasks);
@@ -270,14 +272,20 @@ export function ReconSection({ reduce }: { reduce: boolean }) {
       if (reduce) return;
       gsap.from('.meter', { opacity: 0, x: -24, stagger: 0.08, duration: 0.4, scrollTrigger: { trigger: '.htop', start: 'top 85%', once: true } });
       gsap.utils.toArray<HTMLElement>('.count-up').forEach((el) => {
-        const end = Number(el.dataset.value ?? 0);
-        const o = { v: 0 };
-        gsap.to(o, {
-          v: end,
-          duration: 1.2,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-          onUpdate: () => (el.textContent = String(Math.round(o.v))),
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top 90%',
+          once: true,
+          onEnter: () => {
+            // Tween progress, not the number, so a value that syncs in mid-count still lands exactly.
+            const o = { p: 0 };
+            gsap.to(o, {
+              p: 1,
+              duration: 1.2,
+              ease: 'power2.out',
+              onUpdate: () => void (el.textContent = String(Math.round(o.p * Number(el.dataset.value ?? 0)))),
+            });
+          },
         });
       });
       gsap.from('.r-block', { opacity: 0, y: 24, stagger: 0.12, duration: 0.5, scrollTrigger: { trigger: '.r-grid', start: 'top 80%', once: true } });
@@ -287,7 +295,7 @@ export function ReconSection({ reduce }: { reduce: boolean }) {
 
   return (
     <section className="sec" id="sec-recon" ref={root}>
-      <SectionHead index="03" title="RECON" path="~/recon" cmd={`htop --user ${'operator'} && radar --scan 14d`} reduce={reduce} />
+      <SectionHead index="03" title="RECON" path="~/recon" cmd={`htop -u ${userHandle(name)} && radar --scan 14d`} reduce={reduce} />
       <div className="r-grid">
         <div className="r-left">
           <pre className="htop r-block">
@@ -347,7 +355,7 @@ export function ReconSection({ reduce }: { reduce: boolean }) {
         </div>
         <div className="r-right r-block">
           <div className="r-label">
-            <span className="pr">$</span> radar --scan 14d <span className="dim">· rings = days · angle = time · ■ red = high priority</span>
+            <span className="pr">$</span> radar --scan 14d <span className="dim">· ring = day · angle = time · red = high pri</span>
           </div>
           <Radar completions={completions} progress={prog.ratio} />
         </div>

@@ -72,7 +72,7 @@ function checkReminders() {
       toastKind: 'reminder',
       title: `⏰ ${t.title.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_m, a, b) => b ?? a)}`,
       body: t.due ? `Due ${formatDue(t.due, !!t.dueHasTime)}` : 'Reminder',
-      link: '/#/tasks',
+      link: `${location.pathname}#/tasks`,
       action: {
         label: 'Snooze 10m',
         run: () => useStore.getState().updateTask(t.id, { remindAt: Date.now() + 10 * 60_000 }),

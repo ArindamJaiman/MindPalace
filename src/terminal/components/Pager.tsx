@@ -57,7 +57,7 @@ export function Pager() {
     if (!pager || !rootRef.current) return;
     gsap.fromTo(rootRef.current, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.35, ease: 'power3.out' });
     bodyRef.current?.scrollTo(0, 0);
-  }, [pager?.noteId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pager?.noteId]);
 
   useEffect(() => {
     if (!pager) return;
@@ -154,7 +154,9 @@ export function Pager() {
                 </button>
               ))}
             </div>
-            <div className="pg-end">(END)</div>
+            <div className="pg-end">
+              <span>(END)</span>
+            </div>
           </div>
           <div className="pg-foot dim">
             {wordCount(note.content)} words · {note.content.length} bytes · <kbd>j</kbd>/<kbd>k</kbd> scroll · <kbd>space</kbd> page · <kbd>e</kbd> edit · <kbd>q</kbd> quit
