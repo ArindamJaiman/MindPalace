@@ -4,3 +4,7 @@ dist
 .vite
 
 .vercel
+
+# local env files
+.env.local
+*.local

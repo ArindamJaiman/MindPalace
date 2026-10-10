@@ -167,8 +167,9 @@ function loop(now: number) {
     raf = 0;
     return;
   }
-  // Normalise to 60fps steps so physics feel the same on 120Hz screens.
-  const dt = Math.min(3, (now - last) / 16.67);
+  // Normalise to 60fps steps so physics feel the same on 120Hz screens. The first rAF timestamp
+  // can precede the performance.now() taken in wake(), so clamp at zero.
+  const dt = Math.max(0, Math.min(3, (now - last) / 16.67));
   last = now;
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 

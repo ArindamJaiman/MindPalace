@@ -95,6 +95,10 @@ create trigger completions_keep_newest before update on public.completions for e
 
 -- ---------- row-level security ----------
 
+-- Only signed-in users touch these tables (RLS below narrows that to their own rows).
+grant select, insert, update, delete on public.profiles, public.notes, public.tasks, public.completions, public.attachments to authenticated;
+revoke all on public.profiles, public.notes, public.tasks, public.completions, public.attachments from anon;
+
 alter table public.profiles enable row level security;
 alter table public.notes enable row level security;
 alter table public.tasks enable row level security;
